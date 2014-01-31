@@ -94,8 +94,10 @@ class Product(models.Model):
 
     weight = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
-    length = models.DecimalField(max_digits=5, decimal_places=2)
-    width = models.DecimalField(max_digits=5, decimal_places=2)
+    length = models.DecimalField(max_digits=5, decimal_places=2,
+        blank=True,  null=True)
+    width = models.DecimalField(max_digits=5, decimal_places=2,
+        blank=True,  null=True)
     height = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
 
@@ -119,7 +121,6 @@ class Edition(models.Model):
     """
     publisher = models.ForeignKey(Company, related_name="related_publishers")
     product = models.ForeignKey(Product)
-
     release_date = models.DateField()
     quantity = models.SmallIntegerField()
 
@@ -242,6 +243,10 @@ class Game(models.Model):
     def __unicode__(self):
         return "Game %s" % (self.product)
 
+EBOOK_FORMAT = (
+    (1, "pdf"),
+    (2, "ePub"),
+)
 
 class eBook(models.Model):
     """
@@ -250,6 +255,7 @@ class eBook(models.Model):
     product = models.ForeignKey(Product)
     chapters = models.TextField()
     pages_nr = models.IntegerField(default=0)
+    format = models.SmallIntegerField(default=0, choices=EBOOK_FORMAT)
     size = models.DecimalField(
         max_digits=5, decimal_places=2,
         help_text="in Mb")

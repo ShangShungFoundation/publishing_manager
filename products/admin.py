@@ -3,6 +3,8 @@ from django.conf import settings
 
 from models import Language, Masterpiece, Product, Edition, Book, CD, DVD, eBook, Game, Poster, AudioDownload, VideoDownload, Subject
 
+from contributions.models import ProductContribution
+
 
 class BookInline(admin.StackedInline):
     model = Book
@@ -38,12 +40,19 @@ class VideoDownloadInline(admin.StackedInline):
     model = VideoDownload
     max_num = 1
 
-
+class ProductContributionInline(admin.StackedInline):
+    model = ProductContribution
+    max_num = 1
+    
 class ProductAdmin(admin.ModelAdmin):
     model = VideoDownload
-    list_display = ('masterpiece', 'ean', 'title', 'in_catalogue')
+    list_display = ('title', 'masterpiece', 'ean', 'in_catalogue', 'support_type')
+    list_filter = ('masterpiece', 'support_type', 'in_catalogue', 'on_sale' )
+    search_fields = ['title', 'ean',  'code', 'ipc']
+    
     inlines = [
-        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline
+        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline,
+        ProductContributionInline
     ]
     save_as = True
 
@@ -62,7 +71,7 @@ class ProductAdmin(admin.ModelAdmin):
         }),
         ("volumetry", {
             'fields': (
-                    ('length', 'width', 'height'),
+                    ( 'width', 'height'),
                     'weight',
                 )
         }),

@@ -85,6 +85,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+from os.path import join
+TEMPLATE_DIRS = (
+    join(BASE_DIR,  'templates'),
+)
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
+from django.conf.global_settings import LANGUAGES as APP_LANGUAGES
+APP_LANGUAGES = list(APP_LANGUAGES) + [("ti", "Tibetan")]
 
 # importing local settings
 try:

@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-
 ROLES = (
     (1, "translator"),
     (3, "designer"),
@@ -10,7 +9,6 @@ ROLES = (
     (6, "photographer"),
     (7, "colaborator"),
 )
-
 
 class ProductContribution(models.Model):
     """

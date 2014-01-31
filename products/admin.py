@@ -45,7 +45,7 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [
         BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline
     ]
-
+    save_as = True
 
     class Media:
         static_url = getattr(settings, 'STATIC_URL', '/media')
@@ -53,7 +53,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('masterpiece', 'ean', 'code', 'ipc', 'derivative', 'support_type')
+            'fields': ('support_type', 'derivative', 'masterpiece', 'ean', 'code', 'ipc', 'observations' )
         }),
         (None, {
             'fields': ('authors', 'title', 'subtitle',

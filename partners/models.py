@@ -19,8 +19,9 @@ class Company(models.Model):
     def __unicode__(self):
         return self.name
 
-    # class Meta:
-    #     abstract = True
+    class Meta:
+        verbose_name = _(u"Company")
+        verbose_name_plural = _(u"Companies")
 
 
 class Distribution(models.Model):
@@ -31,3 +32,6 @@ class Distribution(models.Model):
     area = models.TextField()
     active = models.BooleanField()
     observations = models.TextField(blank=True,  null=True)
+    
+    def __unicode__(self):
+        return self.company_id

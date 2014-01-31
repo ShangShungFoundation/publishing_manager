@@ -8,44 +8,43 @@ from contributions.models import ProductContribution
 
 class BookInline(admin.StackedInline):
     model = Book
-    max_num = 1
+    extra = 0
 
 
 class eBookInline(admin.StackedInline):
     model = eBook
-    max_num = 1
+    extra = 0
 
 
 class CDInline(admin.StackedInline):
     model = CD
-    max_num = 1
+    extra = 0
 
 
 class DVDInline(admin.StackedInline):
     model = DVD
-    max_num = 1
+    extra = 0
 
 
 class GameInline(admin.StackedInline):
     model = Game
-    max_num = 1
+    extra = 0
 
 
 class AudioDownloadInline(admin.StackedInline):
     model = AudioDownload
-    max_num = 1
+    extra = 0
 
 
 class VideoDownloadInline(admin.StackedInline):
     model = VideoDownload
-    max_num = 1
+    extra = 0
 
 class ProductContributionInline(admin.StackedInline):
     model = ProductContribution
-    max_num = 1
+    extra = 0
     
 class ProductAdmin(admin.ModelAdmin):
-    model = VideoDownload
     list_display = ('title', 'masterpiece', 'ean', 'in_catalogue', 'support_type')
     list_filter = ('masterpiece', 'support_type', 'in_catalogue', 'on_sale' )
     search_fields = ['title', 'ean',  'code', 'ipc']
@@ -84,10 +83,17 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
 
+class EditionAdmin(admin.ModelAdmin):
+    list_display = ('product', 'publisher', 'release_date')
+    date_herarchy = ['release_date']
+    list_filter = ('publisher__name', )
+    search_fields = ['product__title', 'publisher__name']
+    
+    
 admin.site.register(Language)
 admin.site.register(Masterpiece)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(Edition)
+admin.site.register(Edition, EditionAdmin)
 
 # admin.site.register(Book)
 # admin.site.register(CD)

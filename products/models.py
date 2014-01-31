@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from persons.models import Persona
 from partners.models import Company
 
+from django.conf import settings
 
 class Subject(models.Model):
     name = models.CharField(_(u'name'), max_length=32)
@@ -14,11 +15,10 @@ class Subject(models.Model):
 
 
 class Language(models.Model):
-    name = models.CharField(_(u'name'), max_length=32)
-    code = models.CharField(_(u'code'), max_length=3)
+    code = models.CharField(_(u'name'), choices=settings.APP_LANGUAGES, max_length=32, unique=True)
 
     def __unicode__(self):
-        return self.name
+        return self.get_code_display()
 
 
 RESTRICTION_LEVELS = (
@@ -34,7 +34,7 @@ class Masterpiece(models.Model):
 
     title = models.CharField(max_length=232)
     subtitle = models.CharField(max_length=232)
-    language = models.ForeignKey(Language, verbose_name=_(u'original language'))
+    language = models.CharField(max_length=5, choices=settings.APP_LANGUAGES)
     copyright_holder = models.ForeignKey(Persona)
     first_edition_year = models.SmallIntegerField(
         _("first edition year"), max_length=4)
@@ -45,14 +45,16 @@ class Masterpiece(models.Model):
 
     restriction = models.CharField(_("restiction level"),
             choices=RESTRICTION_LEVELS, max_length=50)
-
+    
+    observations = models.TextField(blank=True,  null=True)
+    
     class Meta:
         verbose_name = _(u"masterpiece")
         verbose_name_plural = _(u"masterpieces")
 
     def __unicode__(self):
         auhors = self.authors
-        return "%s - %s" % (auhors, self.title)
+        return self.title
 
 
 SUPPORT_TYPES = (
@@ -75,7 +77,7 @@ class Product(models.Model):
     masterpiece = models.ForeignKey(Masterpiece)
     ean = models.CharField("EAN/ISBN", max_length=16, blank=True,  null=True)
     code = models.CharField(max_length=50, blank=True,  null=True)
-    ipc = models.CharField("IPC", max_length=50, blank=True,  null=True)
+    ipc = models.CharField("IPC", max_length=50, blank=True, null=True)
     derivative = models.ForeignKey("Product",
         help_text="in the case if product derivate from other product",
         blank=True, null=True)
@@ -93,8 +95,6 @@ class Product(models.Model):
     is_translated = models.BooleanField(_("is translated"))
 
     weight = models.DecimalField(max_digits=5, decimal_places=2,
-        blank=True,  null=True)
-    length = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
     width = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
@@ -147,8 +147,8 @@ class Book(models.Model):
 
     """
     product = models.ForeignKey(Product)
-    reading_line = models.CharField(max_length=256, blank=True,  null=True)
-    chapters = models.TextField()
+    reading_line = models.CharField(max_length=256, blank=True, null=True)
+    chapters = models.TextField(blank=True, null=True)
 
     cover_colors = models.CharField(max_length=20,
         help_text="CMYK + Pantone colours")
@@ -253,12 +253,12 @@ class eBook(models.Model):
 
     """
     product = models.ForeignKey(Product)
-    chapters = models.TextField()
+    chapters = models.TextField(blank=True,  null=True)
     pages_nr = models.IntegerField(default=0)
     format = models.SmallIntegerField(default=0, choices=EBOOK_FORMAT)
-    size = models.DecimalField(
-        max_digits=5, decimal_places=2,
-        help_text="in Mb")
+    #size = models.DecimalField(
+        #max_digits=5, decimal_places=2,
+        #help_text="in Mb")
 
     def __unicode__(self):
         return "eBook %s" % (self.product)

@@ -24,7 +24,7 @@ class ProductContribution(models.Model):
     description = models.TextField(blank=True,  null=True)
 
     def __unicode__(self):
-        return "%s %s %s" % (self.product, self.role, self.persona)
+        return "%s %s %s" % (self.product_id, self.get_role_display(), self.persona_id)
 
 
 class Sponsorship(models.Model):

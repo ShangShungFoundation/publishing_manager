@@ -36,10 +36,15 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # project apps
     'persons',
     'products',
     'contributions',
     'partners',
+    'catalogs',
+    # vendor apps
+    'taggit',
+    'taggit_autosuggest',
 )
 
 MIDDLEWARE_CLASSES = (

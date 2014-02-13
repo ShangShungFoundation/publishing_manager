@@ -9,17 +9,13 @@ function toogle_type(support_type){
 	} else {
 		django.jQuery("#"+support_type+"_set_group").show();
 	}
+	django.jQuery("#productcontribution_set-group").show();
 }
 
 support_type_ele.on("change", function(){
 	var that = django.jQuery(this);
-	console.log(that.val())
 	toogle_type(that.val())
 })
-
-// support_type_ele.change(function() {
-
-// })
 
 
 

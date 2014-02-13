@@ -3,11 +3,17 @@ from django.utils.translation import ugettext_lazy as _
 
 ROLES = (
     (1, "translator"),
-    (3, "designer"),
-    (4, "editor"),
-    (5, "corrector"),
-    (6, "photographer"),
-    (7, "colaborator"),
+    (2, "transcriptor"),
+    (3, "cover designer"),
+    (4, "layout designer"),
+    (5, "editor"),
+    (6, "corrector"),
+    (7, "photographer"),
+    (8, "editing superviser"),
+    (9, "project manager"),
+    (10, "revisor"),
+    (11, "performer"),
+    (12, "collaborator"),
 )
 
 class ProductContribution(models.Model):
@@ -22,7 +28,7 @@ class ProductContribution(models.Model):
     description = models.TextField(blank=True,  null=True)
 
     def __unicode__(self):
-        return "%s %s %s" % (self.product_id, self.get_role_display(), self.persona_id)
+        return u"%s %s %s" % (self.product_id, self.get_role_display(), self.persona_id)
 
 
 class Sponsorship(models.Model):
@@ -36,7 +42,7 @@ class Sponsorship(models.Model):
     description = models.TextField(blank=True,  null=True)
 
     def __unicode__(self):
-        return "%s sponsored by %s" % (self.product, self.persona)
+        return u"%s sponsored by %s" % (self.product, self.persona)
 
 
 class Project(models.Model):

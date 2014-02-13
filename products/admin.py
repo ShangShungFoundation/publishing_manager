@@ -5,54 +5,58 @@ from models import Language, Masterpiece, Product, Edition, Book, CD, DVD, eBook
 
 from contributions.models import ProductContribution
 
-
 class BookInline(admin.StackedInline):
     model = Book
-    extra = 0
+    max_num = 1
 
 
 class eBookInline(admin.StackedInline):
     model = eBook
-    extra = 0
+    max_num = 1
 
 
 class CDInline(admin.StackedInline):
     model = CD
-    extra = 0
+    max_num = 1
 
 
 class DVDInline(admin.StackedInline):
     model = DVD
-    extra = 0
+    max_num = 1
 
 
 class GameInline(admin.StackedInline):
     model = Game
-    extra = 0
+    max_num = 1
 
 
 class AudioDownloadInline(admin.StackedInline):
     model = AudioDownload
-    extra = 0
+    max_num = 1
 
 
 class VideoDownloadInline(admin.StackedInline):
     model = VideoDownload
-    extra = 0
+    max_num = 1
 
 class ProductContributionInline(admin.StackedInline):
     model = ProductContribution
     extra = 0
     
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'masterpiece', 'ean', 'in_catalogue', 'support_type')
-    list_filter = ('masterpiece', 'support_type', 'in_catalogue', 'on_sale' )
-    search_fields = ['title', 'ean',  'code', 'ipc']
+    list_display = ('title', 'ean',  'support_type', 'subject', 'restriction', 'on_sale', 'flag',)
+    list_filter = ( 'support_type', 'languages', 'on_sale', 'restriction', 'subject', ) #'languages__code'
+    search_fields = ['title', 'authors',  'ean',  'code', 'ipc', 'subject__name',]
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "languages":
+             kwargs["queryset"] = Language.objects.all()
+        return super(ProductAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     inlines = [
-        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline,
-        ProductContributionInline
+        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline, ProductContributionInline
     ]
+    
     save_as = True
 
     class Media:
@@ -61,23 +65,28 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('support_type', 'derivative', 'masterpiece', 'ean', 'code', 'ipc', 'observations' )
+            'fields': ('support_type', 'derivative',                            'masterpiece',
+                       ('copyright_holder', 'copyright_year'),
+                       ('ean', 'code', 'ipc'),
+                       ('on_sale', 'price', ),
+                       'quantity',
+                       'flag',
+                       'observations',  )
         }),
         (None, {
             'fields': ('authors', 'title', 'subtitle',
                     ('is_translated', 'languages'),
+                    ('subject','tags'),
+                    'restriction',
+                    'summary',
+                    'description',
+                    'image_name',
                 )
         }),
         ("volumetry", {
             'fields': (
                     ( 'width', 'height'),
                     'weight',
-                )
-        }),
-         ("catalog", {
-            'fields': (
-                    ('in_catalogue', 'on_sale'),
-                    'url'
                 )
         }),
     )
@@ -93,9 +102,9 @@ class EditionAdmin(admin.ModelAdmin):
 admin.site.register(Language)
 admin.site.register(Masterpiece)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(Edition, EditionAdmin)
+admin.site.register(Edition)
 
-# admin.site.register(Book)
+admin.site.register(Book)
 # admin.site.register(CD)
 # admin.site.register(DVD)
 # admin.site.register(eBook)

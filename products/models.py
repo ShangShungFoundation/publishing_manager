@@ -100,7 +100,8 @@ class Product(models.Model):
         help_text="in the case if product derivate from other product",
         blank=True, null=True)
 
-    authors = models.CharField("Author/s", max_length=256, blank=True, null=True)
+    authors = models.CharField("Author/s", 
+	max_length=256, blank=True, null=True)
     title = models.CharField(max_length=256)
     subtitle = models.CharField(max_length=256, blank=True,  null=True)
     
@@ -124,7 +125,7 @@ class Product(models.Model):
         blank=True,  null=True,
         help_text="temporarly is here finally it should go to the masterpiece")
         
-    contributions =542 models.ManyToManyField(Persona,
+    contributions = models.ManyToManyField(Persona,
         through='contributions.ProductContribution')
     project = models.ForeignKey('contributions.Project',
         blank=True,  null=True)
@@ -200,14 +201,14 @@ class Edition(models.Model):
         blank=True,  null=True)
     copy_price = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
-        542
+        
     vat = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
 
     observations = models.TextField(blank=True,  null=True)
 
     def __unicode__(self):
-        return "%s - %s" % (self.product, self.releas/home/shop/SSP_manager/publishing_managere_date)
+        return "%s - %s" % (self.product, self.publisher)
 
 
 PAPER_FINISH = (

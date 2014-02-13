@@ -44,7 +44,7 @@ class ProductContributionInline(admin.StackedInline):
     extra = 0
     
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'ean',  'support_type', 'subject', 'restriction', 'on_sale', 'flag',)
+    list_display = ('title', 'ean', 'code', 'support_type', 'subject', 'restriction', 'on_sale', 'flag',)
     list_filter = ( 'support_type', 'languages', 'on_sale', 'restriction', 'subject', ) #'languages__code'
     search_fields = ['title', 'authors',  'ean',  'code', 'ipc', 'subject__name',]
     

@@ -11,7 +11,7 @@ Currently implemented:
 * Product Management
 * Product Conribution Management
 * Edition Mangement
-* Calatog Management
+* Catalog Management
 * Sponsorship Management
 
 TODO:

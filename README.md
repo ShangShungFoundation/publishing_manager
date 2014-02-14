@@ -1,4 +1,4 @@
-Publishing Manger
+Publishing Manager
 =================
 
 Management solution for editorial, publishing and distributiuon.

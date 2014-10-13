@@ -7,9 +7,10 @@ class CatalogAdmin(admin.ModelAdmin):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('product',  'catalog', 'url', 'price')
+    #list_display = ('product',  'catalog', 'url', 'price')
     list_filter = ( 'catalog', 'product__support_type', 'product__on_sale', 'product__restriction',) 
     search_fields = ['product__title', 'product__ean',  'product__code', ]
-    
+    raw_id_fields=('product',)
+
 admin.site.register(Catalog, CatalogAdmin)
 admin.site.register(Item, ItemAdmin)

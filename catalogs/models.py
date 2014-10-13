@@ -3,13 +3,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from partners.models import Company
-from products.models import Product
+from products.models import Product, Edition
 
 CURRENCIES = (
     ("euro", u"€"),
     ("dolar", u"$"),
-    ("dolar", u"$"),
 )
+
 
 class Catalog(models.Model):
     name = models.CharField(_(u'name'), max_length=32)
@@ -24,11 +24,14 @@ class Catalog(models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
+
 class Item(models.Model):
     catalog = models.ForeignKey(Catalog, 
         related_name="related_items")
     product = models.ForeignKey(Product, related_name="related_products")
+    #edition = models.ForeignKey(Edition, related_name="related_items",
+    #    blank=True, null=True,)
     
     url = models.URLField("product url", blank=True,  null=True,
         help_text=" product url")

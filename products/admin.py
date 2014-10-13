@@ -5,6 +5,7 @@ from models import Language, Masterpiece, Product, Edition, Book, CD, DVD, eBook
 
 from contributions.models import ProductContribution
 
+
 class BookInline(admin.StackedInline):
     model = Book
     max_num = 1
@@ -44,9 +45,10 @@ class ProductContributionInline(admin.StackedInline):
     extra = 0
     
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'ean', 'code', 'support_type', 'subject', 'restriction', 'on_sale', 'flag',)
+    list_display = ('title', 'ean', 'support_type', 'restriction', 'on_sale', 'flag',)
     list_filter = ( 'support_type', 'languages', 'on_sale', 'restriction', 'subject', ) #'languages__code'
     search_fields = ['title', 'authors',  'ean',  'code', 'ipc', 'subject__name',]
+    raw_id_fields=('derivative', 'copyright_holder') 
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "languages":
@@ -61,12 +63,16 @@ class ProductAdmin(admin.ModelAdmin):
 
     class Media:
         static_url = getattr(settings, 'STATIC_URL', '/media')
-        js = [static_url+'admin/js/product_admin.js']
+        js = [
+              static_url+'tiny_mce/tiny_mce.js',
+              static_url+'admin/js/product_admin.js',
+              ]
 
     fieldsets = (
         (None, {
-            'fields': ('support_type', 'derivative',                            'masterpiece',
+            'fields': ('support_type', #'derivative',                            'masterpiece',
                        ('copyright_holder', 'copyright_year'),
+                       "project",
                        ('ean', 'code', 'ipc'),
                        ('on_sale', 'price', ),
                        'quantity',
@@ -85,7 +91,7 @@ class ProductAdmin(admin.ModelAdmin):
         }),
         ("volumetry", {
             'fields': (
-                    ( 'width', 'height'),
+                    ( 'width', 'height', 'depth'),
                     'weight',
                 )
         }),

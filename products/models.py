@@ -5,11 +5,15 @@ from taggit.managers import TaggableManager
 
 from persons.models import Persona
 from partners.models import Company
+from prestashop.models import PsCategory
 
 from django.conf import settings
 
 
 class Subject(models.Model):
+    """
+    
+    """
     name = models.CharField(_(u'name'), max_length=32)
     description = models.TextField(blank=True, null=True)
     belongs_to = models.ForeignKey("Subject",
@@ -51,7 +55,8 @@ RESTRICTION_LEVELS = (
 
 class Masterpiece(models.Model):
     """
-    
+    Related to original copy or Master. For example it is original from which difrent translations are done.
+    Another feature is describing intelectual authorship.
     """
     authors = models.ManyToManyField("persons.Author")
 
@@ -69,7 +74,7 @@ class Masterpiece(models.Model):
         verbose_name_plural = _(u"master")
 
     def __unicode__(self):
-        auhors = self.authors
+        #auhors = self.authors
         return self.title
 
 
@@ -83,13 +88,14 @@ SUPPORT_TYPES = (
     ("audiodownload", "Audio download"),
     ("videodownload", "Video download"),
     ("med", "Medicine"),
+    ("accessories", "Accessories"),
     ("comp", "Composed product"),
 )
 
 
 class Product(models.Model):
     """
-
+    Defines particular product. There can be situations that practically the same book may apear as diferent product becouse of difrent binding etc.
     """
     tags = TaggableManager()
     
@@ -114,44 +120,43 @@ class Product(models.Model):
     copyright_year = models.SmallIntegerField(max_length=4,
         blank=True, null=True)
     
-    # TODO temporarly price is here finally it should go to the edition
-    price = models.DecimalField(max_digits=5, decimal_places=2,
-        blank=True,  null=True,
-        help_text="in Euro. temporarly price is here finally it should go to the edition")
+    
     summary = models.TextField(
         blank=True,  null=True,
         help_text="temporarly is here finally it should go to the masterpiece")
     description = models.TextField(
-        blank=True,  null=True,
+        #blank=True,  null=True,
         help_text="temporarly is here finally it should go to the masterpiece")
         
     contributions = models.ManyToManyField(Persona,
         through='contributions.ProductContribution')
     project = models.ForeignKey('contributions.Project',
-        blank=True,  null=True)
+        blank=True, null=True)
 
     languages = models.ManyToManyField(Language, verbose_name=u'languages')
     is_translated = models.BooleanField(_("is translated"))
 
     weight = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True,
-        help_text="in grams")
+        help_text="in Kg")
     width = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True,
         help_text="in Cm")
     height = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True,
         help_text="in Cm")
-
-    url = models.URLField("webshop page", blank=True,  null=True,
-        help_text="webshop product url")
-    #webshop_id = models.CharField("webshop id", max_length=16,
-    #    blank=True,  null=True,
-    #    help_text="temporarly is here for old webshop")
+    depth = models.DecimalField(max_digits=5, decimal_places=2,
+        blank=True,  null=True,
+        help_text="in Cm")
     
     #in_catalogue = models.BooleanField(_("in catalogue"))
     on_sale = models.BooleanField(_("on sale"))
-
+    # TODO temporarly price is here finally it should go to the edition
+    price = models.DecimalField(_("recommended price"),
+        max_digits=5, decimal_places=2,
+        blank=True,  null=True,
+        help_text="in Euro. temporarly price is here finally it should go to the edition")
+    
     support_type = models.CharField(_("support type"),
         choices=SUPPORT_TYPES, max_length=25)
 
@@ -168,29 +173,40 @@ class Product(models.Model):
     last_edition_year = models.CharField(
         _("last edition year"), max_length=20,
         blank=True,  null=True)
-    subject = models.ForeignKey(Subject,
-        blank=True,  null=True)
+    
+    subject = models.ForeignKey(Subject)
+    #webshop_cat = models.ForeignKey(PsCategory)
     
     quantity = models.IntegerField(
         _("stock quantity"),
         blank=True,  null=True)
-    image_name = models.CharField(_("image name"),
+    image_name = models.ImageField(_("image name"),
+        upload_to="product_images/",
         max_length=200,
         blank=True,  null=True)
     
     def __unicode__(self):
         return "%s - %s" % (self.ean, self.title)
 
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            # incerase weight for new items for 15%
+            if self.weight:
+                weight = float(self.weight)
+                self.weight = weight + (weight * 0.15)
+        super(Product, self).save(*args, **kwargs)
+
 
 class Edition(models.Model):
     """
-
+    
     """
     publisher = models.ForeignKey(Company, related_name="related_publishers")
     product = models.ForeignKey(Product, related_name="related_editions")
     release_date = models.DateField()
     quantity = models.SmallIntegerField("edition quantity",
-        blank=True,  null=True,)
+        blank=True, null=True,
+        help_text="if blank it is edition is considered to be released on demand")
 
     cost = models.DecimalField(max_digits=5, decimal_places=2,
         blank=True,  null=True)
@@ -284,7 +300,6 @@ DVD_MEDIA = (
     ("ntsc", "ntsc"),
 )
 
-
 class DVD(models.Model):
     """
 
@@ -337,6 +352,7 @@ class Game(models.Model):
 EBOOK_FORMAT = (
     (1, "pdf"),
     (2, "ePub"),
+    (3, "kindle"),
 )
 
 class eBook(models.Model):
@@ -347,6 +363,8 @@ class eBook(models.Model):
     chapters = models.TextField(blank=True, null=True)
     pages_nr = models.IntegerField(default=0)
     format = models.SmallIntegerField(default=0, choices=EBOOK_FORMAT)
+    file  = models.FileField(upload_to="product_ebooks/",
+           blank=True,  null=True)
     size = models.DecimalField(
         max_digits=5, decimal_places=2,
         blank=True, null=True,
@@ -371,6 +389,8 @@ class AudioDownload(models.Model):
         max_digits=5, decimal_places=2,
         help_text="in Mb")
     format = models.SmallIntegerField(choices=AUDIO_FORMAT, default=1)
+    file  = models.FileField(upload_to="product_mp3/",
+        blank=True,  null=True)
     duration = models.SmallIntegerField(
         help_text="in minutes",
         blank=True,  null=True)
@@ -394,6 +414,8 @@ class VideoDownload(models.Model):
         max_digits=5, decimal_places=2,
         help_text="in Mb")
     format = models.SmallIntegerField(choices=VIDEO_FORMAT, default=1)
+    file  = models.FileField(upload_to="product_videos/",
+        blank=True,  null=True)
     duration = models.SmallIntegerField(
         help_text="in minutes",
         blank=True,  null=True)

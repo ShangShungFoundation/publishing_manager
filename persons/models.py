@@ -9,7 +9,7 @@ class Persona(models.Model):
     """
 
     """
-    name_surname = models.CharField(_(u'name'), max_length=32)
+    name_surname = models.CharField(_(u'name'), max_length=132)
     email = models.EmailField(
         blank=True, null=True)
     tel = models.CharField(

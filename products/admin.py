@@ -4,7 +4,7 @@ from django.conf import settings
 from models import Language, Masterpiece, Product, Edition, Book, CD, DVD, eBook, Game, Poster, AudioDownload, VideoDownload, Subject
 
 from contributions.models import ProductContribution
-
+from catalogs.models import Item
 
 class BookInline(admin.StackedInline):
     model = Book
@@ -40,10 +40,17 @@ class VideoDownloadInline(admin.StackedInline):
     model = VideoDownload
     max_num = 1
 
+
 class ProductContributionInline(admin.StackedInline):
     model = ProductContribution
     extra = 0
-    
+
+
+class CatalogItemInline(admin.StackedInline):
+    model = Item
+    extra = 1
+
+
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('title', 'ean', 'support_type', 'restriction', 'on_sale', 'flag',)
     list_filter = ( 'support_type', 'languages', 'on_sale', 'restriction', 'subject', ) #'languages__code'
@@ -56,7 +63,7 @@ class ProductAdmin(admin.ModelAdmin):
         return super(ProductAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     inlines = [
-        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline, ProductContributionInline
+        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline, ProductContributionInline, CatalogItemInline
     ]
     
     save_as = True

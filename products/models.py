@@ -5,43 +5,47 @@ from taggit.managers import TaggableManager
 
 from persons.models import Persona
 from partners.models import Company
-from prestashop.models import PsCategory
+from prestashop.models import PsCategory, PsProduct
+
 
 from django.conf import settings
+
+from prestashop.conv_data import prepare_data
+from prestashop.views import add_product, update_product, delete_product
 
 
 class Subject(models.Model):
     """
-    
+
     """
     name = models.CharField(_(u'name'), max_length=32)
     description = models.TextField(blank=True, null=True)
     belongs_to = models.ForeignKey("Subject",
         blank=True, null=True)
-    
+
     def show(self):
         if self.belongs_to_id:
             return u" > ".join([unicode(self.belongs_to), self.name])
         else:
             return self.name
-        
+
     def __unicode__(self):
          return self.show()
-    
+
 
     class Meta:
         ordering = ["-id"]
-        
+
 
 class Language(models.Model):
     code = models.CharField(_(u'name'), choices=settings.APP_LANGUAGES, max_length=32, unique=True)
 
     def __unicode__(self):
-        return "%s - %s" % (self.code, self.get_code_display())
+        return u"%s - %s" % (self.code, self.get_code_display())
 
     class Meta:
         ordering = ["code"]
-        
+
 
 RESTRICTION_LEVELS = (
     ("public", _("public")),
@@ -99,7 +103,10 @@ class Product(models.Model):
     """
     tags = TaggableManager()
     
-    ean = models.CharField("EAN/ISBN", max_length=26, blank=True,  null=True)
+    ean = models.CharField("EAN/ISBN",
+        max_length=26,
+        unique=True,
+        blank=True, null=True)
     code = models.CharField(max_length=50, blank=True,  null=True)
     ipc = models.CharField("IPC", max_length=50, blank=True,  null=True)
     derivative = models.ForeignKey("Product",
@@ -180,21 +187,42 @@ class Product(models.Model):
     quantity = models.IntegerField(
         _("stock quantity"),
         blank=True,  null=True)
-    image_name = models.ImageField(_("image name"),
+    
+    image_name = models.ImageField(_("main image"),
         upload_to="product_images/",
-        max_length=200,
-        blank=True,  null=True)
+        max_length=240,)
     
     def __unicode__(self):
-        return "%s - %s" % (self.ean, self.title)
+        return u"%s - %s" % (self.ean, self.title)
 
     def save(self, *args, **kwargs):
+        
         if self.pk is None:
             # incerase weight for new items for 15%
             if self.weight:
                 weight = float(self.weight)
                 self.weight = weight + (weight * 0.15)
+        else:
+            # update prestashop product data
+            from catalogs.models import Item
+            catalog_item = Item.objects.filter(product=self, catalog_id=3)
+            if len(catalog_item) == 1:
+                prepared_data = prepare_data(self)
+                try:
+                    ps_product = PsProduct.objects.get(ean13=prepared_data["ean13"])
+                except PsProduct.DoesNotExist:
+                    pass
+                else:
+                    ps_product = update_product(ps_product, prepared_data)
         super(Product, self).save(*args, **kwargs)
+        
+    def delete(self, *args, **kwargs):
+        ean = self.ean
+        super(Product, self).delete(*args, **kwargs)
+        try:
+            delete_product(ean)
+        except:
+            pass
 
 
 class Edition(models.Model):
@@ -224,7 +252,7 @@ class Edition(models.Model):
     observations = models.TextField(blank=True,  null=True)
 
     def __unicode__(self):
-        return "%s - %s" % (self.product, self.publisher)
+        return u"%s - %s" % (self.product, self.publisher)
 
 
 PAPER_FINISH = (
@@ -265,7 +293,7 @@ class Book(models.Model):
     observations = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return "%s" % (self.product)
+        return u"%s" % (self.product)
 
 
 CD_MEDIA = (
@@ -293,6 +321,7 @@ class CD(models.Model):
 DVD_SYSTEM = (
     ("pal", "PAL"),
     ("ntsc", "NTSC"),
+    ("mp4", "mp4"),
 )
 
 DVD_MEDIA = (
@@ -313,7 +342,7 @@ class DVD(models.Model):
     media_format = models.CharField(choices=DVD_SYSTEM, max_length=20)
 
     def __unicode__(self):
-        return "DVD %s" % (self.product)
+        return u"DVD %s" % (self.product)
 
 
 class Medicine(models.Model):
@@ -324,7 +353,7 @@ class Medicine(models.Model):
     packaging = models.TextField()
 
     def __unicode__(self):
-        return "DVD %s" % (self.product)
+        return u"Medicine %s" % (self.product)
     
 class Poster(models.Model):
     """
@@ -336,7 +365,7 @@ class Poster(models.Model):
     paper_gramature = models.SmallIntegerField(max_length=40)
 
     def __unicode__(self):
-        return "Poister %s" % (self.product)
+        return u"Poster %s" % (self.product)
 
 
 class Game(models.Model):
@@ -347,7 +376,7 @@ class Game(models.Model):
     characteristics = models.TextField()
 
     def __unicode__(self):
-        return "Game %s" % (self.product)
+        return u"Game %s" % (self.product)
 
 EBOOK_FORMAT = (
     (1, "pdf"),
@@ -361,8 +390,8 @@ class eBook(models.Model):
     """
     product = models.ForeignKey(Product)
     chapters = models.TextField(blank=True, null=True)
-    pages_nr = models.IntegerField(default=0)
-    format = models.SmallIntegerField(default=0, choices=EBOOK_FORMAT)
+    pages_nr = models.IntegerField()
+    format = models.SmallIntegerField(choices=EBOOK_FORMAT)
     file  = models.FileField(upload_to="product_ebooks/",
            blank=True,  null=True)
     size = models.DecimalField(
@@ -371,7 +400,7 @@ class eBook(models.Model):
         help_text="in Mb")
 
     def __unicode__(self):
-        return "eBook %s" % (self.product)
+        return u"eBook %s" % (self.product)
 
 
 AUDIO_FORMAT = (
@@ -396,7 +425,7 @@ class AudioDownload(models.Model):
         blank=True,  null=True)
 
     def __unicode__(self):
-        return "Audio Download %s" % (self.product)
+        return u"Audio Download %s" % (self.product)
 
 
 VIDEO_FORMAT = (
@@ -421,4 +450,4 @@ class VideoDownload(models.Model):
         blank=True,  null=True)
 
     def __unicode__(self):
-        return "Video Download %s" % (self.product)
+        return u"Video Download %s" % (self.product)

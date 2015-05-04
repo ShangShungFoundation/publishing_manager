@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    "django_admin_bootstrapped",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,8 +50,8 @@ INSTALLED_APPS = (
     'sales',
     # vendor apps
     'taggit',
-    'autocomplete_light',
-    'taggit_autosuggest',
+    #'autocomplete_light',
+    #'taggit_autosuggest',
     # all auth
     'django.contrib.sites',
     'allauth',
@@ -61,17 +62,15 @@ INSTALLED_APPS = (
     'tracker',
     # wiki
     'django.contrib.humanize',
-    'south',
-    'django_notify',
-    'mptt',
+    #'django_notify',
+    #'mptt',
     'sekizai',
     'sorl.thumbnail',
-    'wiki',
-    'wiki.plugins.attachments',
-    'wiki.plugins.notifications',
-    'wiki.plugins.images',
-    'wiki.plugins.macros',
-    #prestashop
+    #'wiki',
+    #'wiki.plugins.attachments',
+    #'wiki.plugins.notifications',
+    #'wiki.plugins.images',
+    #'wiki.plugins.macros',
     'prestashop',
     # extras
     'tinymce',
@@ -152,8 +151,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
     # wiki
-    'sekizai.context_processors.sekizai',
-    
+    #'sekizai.context_processors.sekizai',
 )
 
 AUTHENTICATION_BACKENDS = (

@@ -6,7 +6,11 @@ from partners.models import Company
 from products.models import Product, Edition
 
 from prestashop.conv_data import prepare_data
+<<<<<<< HEAD
 from prestashop.views import add_product
+=======
+from prestashop.views import add_product, reindex_products, delete_product
+>>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 
 CURRENCIES = (
@@ -36,7 +40,11 @@ class Item(models.Model):
     product = models.ForeignKey(Product, related_name="related_products")
     #edition = models.ForeignKey(Edition, related_name="related_items",
     #    blank=True, null=True,)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
     url = models.URLField("product url", blank=True,  null=True,
         help_text=" product url")
     catalog_code = models.CharField(max_length=100, blank=True, null=True)
@@ -44,10 +52,20 @@ class Item(models.Model):
         max_digits=5, decimal_places=2,
         blank=True, null=True,)
     observations = models.TextField(blank=True, null=True)
+<<<<<<< HEAD
     
     def __unicode__(self):
         return unicode(self.product)
     
+=======
+
+    class Meta():
+        unique_together = (("catalog", "product"),)
+
+    def __unicode__(self):
+        return unicode(self.product)
+
+>>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
     def save(self, *args, **kwargs):
         if self.pk is None and self.catalog_id == 3:
             prepared_data = prepare_data(self.product)
@@ -57,8 +75,17 @@ class Item(models.Model):
             self.price = ps_product.price
             #import ipdb; ipdb.set_trace()
         super(Item, self).save(*args, **kwargs)
+<<<<<<< HEAD
         
     def delete(self, *args, **kwargs):
         ean = self.product
         super(Item, self).delete(*args, **kwargs)
         delete_product(ean)
+=======
+
+    def delete(self, *args, **kwargs):
+        ean = self.product
+        super(Item, self).delete(*args, **kwargs)
+        if self.catalog_id == 3:
+            delete_product(ean)
+>>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6

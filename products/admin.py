@@ -18,12 +18,12 @@ class eBookInline(admin.StackedInline):
 
 class CDInline(admin.StackedInline):
     model = CD
-    max_num = 1
+    #max_num = 1
 
 
 class DVDInline(admin.StackedInline):
     model = DVD
-    max_num = 1
+    #max_num = 1
 
 
 class GameInline(admin.StackedInline):

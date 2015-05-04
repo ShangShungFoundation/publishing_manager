@@ -6,7 +6,7 @@ from partners.models import Company
 from products.models import Product, Edition
 
 from prestashop.conv_data import prepare_data
-from prestashop.views import add_product, reindex_products
+from prestashop.views import add_product, reindex_products, delete_product
 
 
 CURRENCIES = (
@@ -45,6 +45,9 @@ class Item(models.Model):
         blank=True, null=True,)
     observations = models.TextField(blank=True, null=True)
 
+    class Meta():
+        unique_together = (("catalog", "product"),)
+
     def __unicode__(self):
         return unicode(self.product)
 
@@ -61,4 +64,5 @@ class Item(models.Model):
     def delete(self, *args, **kwargs):
         ean = self.product
         super(Item, self).delete(*args, **kwargs)
-        delete_product(ean)
+        if self.catalog_id == 3:
+            delete_product(ean)

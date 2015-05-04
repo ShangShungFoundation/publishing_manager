@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, include, url
-from wiki.urls import get_pattern as get_wiki_pattern
-from django_notify.urls import get_pattern as get_notify_pattern
+#from wiki.urls import get_pattern as get_wiki_pattern
+#from django_notify.urls import get_pattern as get_notify_pattern
 
 from django.conf import settings
 
-import autocomplete_light
-autocomplete_light.autodiscover()
+#import autocomplete_light
+#autocomplete_light.autodiscover()
 
 from django.contrib import admin
 admin.autodiscover()
@@ -21,11 +21,13 @@ urlpatterns = patterns('',
     (r'^tinymce/', include('tinymce.urls')),
     url(r'^catalogs/', include("catalogs.urls")),
     (r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
-    url(r'^autocomplete/', include('autocomplete_light.urls')),
-    (r'^accounts/', include('allauth.urls')),
+    #url(r'^autocomplete/', include('autocomplete_light.urls')),
+    #(r'^accounts/', include('allauth.urls')),
+    url(r'^login/$', 'django.contrib.auth.views.login'),
+    url(r'^logout/$', 'django.contrib.auth.views.logout'),
     (r'^sales/', include('sales.urls')),
-    (r'^notify/', get_notify_pattern()),
-    (r'wiki', get_wiki_pattern()),
+    #(r'^notify/', get_notify_pattern()),
+    #(r'wiki', get_wiki_pattern()),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.STATIC_ROOT}),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve',

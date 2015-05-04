@@ -15,6 +15,6 @@ def items_json(request, catalog_id):
 
     products_json = serializers.serialize("json", products) #fields=('product','price')
     #import ipdb; ipdb.set_trace()
-    
+
     return HttpResponse("importProducts(%s)" % products_json,
-        mimetype='application/json')
+        content_type='application/json')

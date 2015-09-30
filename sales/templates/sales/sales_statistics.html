@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <h1>Sales Statistics for {{ shop }}</h1>
+        
+        <ul>
+        {% for sale in sales %}
+            <li>
+                <a href="{% url 'sales_shop_stats' shop.id sale.month.year sale.month.month %}">{{ sale.month|date:"M.Y" }}</a>
+                
+                - {{ sale.pk__count }} orders total: <strong>{{ sale.paid__sum }}</strong>€
+            </li> 
+        {% endfor %}
+        </ul>
+
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+        
+        <p class="alert alert-success" role="alert">
+            Please wait. Loading product catalog...
+        </p>
+        
+        <h1>{{ shop }} Purchase</h1>
+
+        <form method="post" action="">
+            <ol id="items">
+            
+            </ol>
+
+            <p class="total">
+                Total = <strong id="total">0</strong>€
+            </p>
+
+            <label>introduce new article code: <input type="text" name="article"></input></label>
+            <hr>
+            <p class="paid">
+                <label>Paid <input id="paid" value="0"/></label>
+            </p>
+
+            <p>
+                <a href="#" class="btn btn-default" id="reset">Reset Purchase</a>
+                <a href="#" class="btn btn-success right" id="submit">Submit Purchase</a>
+            </p>
+        </form>
+        <hr>
+        <p><a href="{% url "sales_shop_month_stats" shop.id %}">{{ shop }} statistics</a>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<script>
+// 
+var Products;
+function importProducts(json){
+    Products = json;
+    $('.alert' ).hide();
+}
+
+function renderItem(item) {
+    var ele = "<li><p><strong>" + item.fields.title + "</strong>, " + item.fields.price + "€, " +
+        "<input type=\"hidden\" name=\"item_id\" value=\"" + item.pk + "\" />" + 
+        "<input type=\"hidden\" name=\"item_price\" value=\"" + item.fields.price + "\" />" + 
+        "<input type=\"hidden\" name=\"item_ean\" value=\"" + item.fields.ean + "\" />" + 
+        " <label> quantity: <input type=\"number\" min=\"1\" step=\"1\" name=\"item_quantity\" value=\"1\" /></label>" +
+        "<a href='#' class='remove'>remove</a>" + 
+        "</p></li>";
+    $("#items").append($(ele).slideToggle(100));
+    calculateTotal();
+}
+
+function calculateTotal(){
+    var total = 0;
+    var prices = document.getElementsByName('item_price');
+    var quantity = document.getElementsByName('item_quantity');
+    for (var i = 0; i < prices.length; i++) { 
+          total = total + ( prices[i].value * quantity[i].value);
+    }
+    $("#paid").val(total);
+    $("#total").html(total);
+}
+
+function deletItem(ele){
+    ele.parent.remove();
+    calculateTotal();
+}
+
+function submit_order(){
+    var eans = $("input[name='item_ean']");
+    var prices = $("input[name='item_price']");
+    var ids = $("input[name='item_id']");
+    var quantities = $("input[name='item_quantity']");
+    var total = $("#total").html();
+    var paid = $("#paid").val();
+    var created = new Date().getTime();
+
+    var items = [];
+    for (var i = eans.length - 1; i >= 0; i--) {
+        var item = {
+            "ean": eans[i].value,
+            "price": prices[i].value,
+            "quantity": quantities[i].value * 1,
+            //"title": eans[i],
+            "created" : new Date().getTime()
+            }
+        items.push(item);
+    };
+    place_order(items, total, paid, created);
+
+    $("#items li").remove();
+    $("#paid").val(0);
+    $("#total").html("0");
+}
+
+function show_msg(msg) {
+    var box = $('.alert');
+    box.text(msg);
+    box.show().fadeOut(2000);
+}
+
+jQuery.fn.flash = function( color, duration )
+{
+    var current = this.css( 'color' );
+    this.animate( { color: 'rgb(' + color + ')' }, duration / 2 );
+    this.animate( { color: current }, duration / 2 );
+}
+
+$(function() {
+    $("input[name='article']").change(function() { 
+        var ean = this.value;
+        for (var i in Products) {
+            var item = Products[i * 1];
+            var product_ean = item.fields.ean;
+            if (product_ean == ean) {
+                renderItem(item);
+                this.value = "";
+                return
+            }
+        }
+        this.value = "";
+
+        
+    }).focus()
+
+    $("form").on("change", "input", function() { 
+        calculateTotal();
+    })
+
+    $("form").submit(function (e) {
+      e.preventDefault();
+      return false
+    })
+
+    $("form").on("click", ".remove", function() { 
+        $(this).parent().parent().remove();
+        calculateTotal();
+    })
+
+    $("#submit").click( function(){
+        submit_order();
+    })
+    
+//     $('.input').keypress(function(e) {
+//         if(e.which == 13) {
+//             submit_order();
+//         }
+//     });
+    
+    $("#reset").click( function(){
+        $("#items li").remove();
+        $("#total").html("0");
+        $("input[name='article']").focus();
+    })
+    
+
+})
+
+
+function place_order(items, total, paid, created){
+    var url = "{% url "put_shop_order" shop.id %}";
+
+//     $.get( url, {items:JSON.stringify(items), total:total, paid:paid, created:created})
+//       .done(function( data ) {
+//             show_msg("Order received");
+//       });
+
+    $.ajax(url, {
+        data : {items:JSON.stringify(items), total:total, paid:paid, created:created, csrfmiddlewaretoken: '{{ csrf_token }}'},
+        dataType : 'json',
+//         crossDomain: true,
+        type : 'POST',
+        success: function () {
+            show_msg("Order received");
+        }
+    });
+}
+</script>
+        <script src="http://sse-db.shangshunginstitute.org/catalogs/3/items_json/"></script>
+{% endblock %}

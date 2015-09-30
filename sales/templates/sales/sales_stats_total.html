@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <h1>Sales from {{ from }} to {{ to }} </h1> 
+        <p class="right"><a class="btn btn-default blue" href="{{ request.path }}?output=csv">Export to Exel</a>
+        <table>
+            <tr>
+                <th>Saled</th>
+                <!-- <th>Total saled</th> -->
+                <th>Price</th>
+                <th>EAN</th>
+                <th>Stock</th>
+                <th>Product</th>
+            </tr>
+        {% for item in sales %}
+            <tr>
+                <td> <strong>{{ item.quantity__sum }}</strong> </td>
+                <!-- <td>&nbsp; &nbsp; <strong>{{ item.order__total__sum }}€</strong>  </td> -->
+                <td>&nbsp; &nbsp;{{ item.item__product__price }}€ </td>
+                <td>&nbsp; &nbsp; <em>{{ item.item__product__ean }}<em></td>
+                <td>&nbsp; &nbsp; <strong>{{ item.item__product__quantity }}</strong>  </td>
+                <td>&nbsp; {{ item.item__product__title }}</td>
+            </tr> 
+        {% endfor %}
+        </table>
+{% endblock %}

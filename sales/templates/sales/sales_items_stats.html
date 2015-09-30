@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+        {% if shop %}
+        <h1>Item sales in <a href="{% url 'sales_shop_month_stats' shop.id %}">{{ shop }}</a> for {{ month }} <a href="{% url 'sales_shop_year_stats' shop.id year %}">{{ year }}</a> </h1> 
+        {% else %}
+        <h1>Total Item sales for {% if month %} {{ month }} {% endif %} {{ year }} </h1> 
+        {% endif %}
+        <p class="right"><a class="btn btn-default blue" href="{{ request.path }}?output=csv">Export to Exel</a>
+        <table>
+            <tr>
+                <th>Quantity</th>
+                <th>EAN</th>
+                <th>Product</th>
+            </tr>
+        {% for item in sales %}
+            <tr>
+                <td><strong>{{ item.quantity__sum }}</strong> </td>
+                <td><em>{{ item.item__product__ean }}<em></td>
+                <td>&nbsp; {{ item.item__product__title }}</td>
+            </tr> 
+        {% endfor %}
+        </table>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>SSI shop label creator</h1>
+       
+<p>Click EAN number and save using name composed form EAN number + ".label" extension ex: "2000000001203.label".</p>
+        <p>
+         To find given book press Ctrl+F and introduce book title.</p>
+         
+         
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+
+<script type="text/template" class="template" id="table">
+    <table>
+        <% _.each( rc, function( it ){ %>
+            <tr>
+                <td><%- it.fields.ean %></td>
+                <td><a href="#" data_title="<%- it.fields.title %>" data_price="<%- it.fields.price %>" data_ean="<%- it.fields.ean %>" ><%- it.fields.title %></a></td>
+                <td><%- it.fields.price  %>€</td>
+            </tr>
+        <% }); %>
+    </table>
+</script>
+
+
+<script>
+    var Products;
+    _.templateSettings.variable = "rc";
+
+
+    var Products;
+    function importProducts(json){
+        Products = json;
+    }
+
+
+    $(function() {
+        var label_template = _.template(
+            $( "#label" ).html()
+        );
+        var table_template = _.template(
+            $( "#table" ).html()
+        );
+
+        $( "p" ).after(
+            table_template( Products )
+        );
+
+        $("table").on("click", "a", function() { 
+            var ean = this.getAttribute('data_ean');
+            ean = ean.substring(0, ean.length - 1);
+            var data = {ean: ean, title: this.getAttribute('data_title'), price: this.getAttribute('data_price'),}
+            var content = label_template( data );
+            var uriContent = "data:application/octet-stream," + encodeURIComponent(content);
+            //var newWindow=window.open(uriContent, ean);
+            location.href = uriContent;
+            //window.saveAs(uriContent, ean + ".label")
+        })
+    })
+    
+</script>
+
+
+<script type="text/template" class="template" id="label"><?xml version="1.0" encoding="utf-8"?>
+<DieCutLabel Version="8.0" Units="twips">
+    <PaperOrientation>Portrait</PaperOrientation>
+    <Id>Small30334</Id>
+    <PaperName>30334 2-1/4 in x 1-1/4 in</PaperName>
+    <DrawCommands>
+        <RoundRectangle X="0" Y="0" Width="3240" Height="1800" Rx="270" Ry="270" />
+    </DrawCommands>
+    <ObjectInfo>
+        <BarcodeObject>
+            <Name>Barcode</Name>
+            <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
+            <BackColor Alpha="0" Red="255" Green="255" Blue="255" />
+            <LinkedObjectName></LinkedObjectName>
+            <Rotation>Rotation0</Rotation>
+            <IsMirrored>False</IsMirrored>
+            <IsVariable>False</IsVariable>
+            <Text><%- rc.ean %></Text>
+            <Type>Ean13</Type>
+            <Size>Medium</Size>
+            <TextPosition>Bottom</TextPosition>
+            <TextFont Family="Arial" Size="10" Bold="False" Italic="False" Underline="False" Strikeout="False" />
+            <CheckSumFont Family="Arial" Size="10" Bold="False" Italic="False" Underline="False" Strikeout="False" />
+            <TextEmbedding>Full</TextEmbedding>
+            <ECLevel>0</ECLevel>
+            <HorizontalAlignment>Left</HorizontalAlignment>
+            <QuietZonesPadding Left="0" Top="0" Right="0" Bottom="0" />
+        </BarcodeObject>
+        <Bounds X="403.391021728516" Y="1009.85076904297" Width="2552.26293945313" Height="672.544982910156" />
+    </ObjectInfo>
+    <ObjectInfo>
+        <TextObject>
+            <Name>Price</Name>
+            <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
+            <BackColor Alpha="0" Red="255" Green="255" Blue="255" />
+            <LinkedObjectName></LinkedObjectName>
+            <Rotation>Rotation0</Rotation>
+            <IsMirrored>False</IsMirrored>
+            <IsVariable>False</IsVariable>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Top</VerticalAlignment>
+            <TextFitMode>ShrinkToFit</TextFitMode>
+            <UseFullFontHeight>True</UseFullFontHeight>
+            <Verticalized>False</Verticalized>
+            <StyledText>
+                <Element>
+                    <String><%- rc.price %>€</String>
+                    <Attributes>
+                        <Font Family="Arial" Size="14" Bold="False" Italic="False" Underline="False" Strikeout="False" />
+                        <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
+                    </Attributes>
+                </Element>
+            </StyledText>
+        </TextObject>
+        <Bounds X="517.229858398438" Y="653.104309082031" Width="2193.59008789063" Height="309.028411865234" />
+    </ObjectInfo>
+    <ObjectInfo>
+        <TextObject>
+            <Name>Title</Name>
+            <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
+            <BackColor Alpha="0" Red="255" Green="255" Blue="255" />
+            <LinkedObjectName></LinkedObjectName>
+            <Rotation>Rotation0</Rotation>
+            <IsMirrored>False</IsMirrored>
+            <IsVariable>False</IsVariable>
+            <HorizontalAlignment>Center</HorizontalAlignment>
+            <VerticalAlignment>Top</VerticalAlignment>
+            <TextFitMode>ShrinkToFit</TextFitMode>
+            <UseFullFontHeight>True</UseFullFontHeight>
+            <Verticalized>False</Verticalized>
+            <StyledText>
+                <Element>
+                    <String><%- rc.title %></String>
+                    <Attributes>
+                        <Font Family="DejaVu Sans" Size="9" Bold="False" Italic="False" Underline="False" Strikeout="False" />
+                        <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
+                    </Attributes>
+                </Element>
+            </StyledText>
+        </TextObject>
+        <Bounds X="150" Y="163.116119384766" Width="2880" Height="427.073455810547" />
+    </ObjectInfo>
+</DieCutLabel></script>
+        <script src="http://78.47.135.2:8008/catalogs/1/items_json/"></script>
+{% endblock %}

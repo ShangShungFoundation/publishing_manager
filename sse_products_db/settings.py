@@ -54,17 +54,17 @@ INSTALLED_APPS = (
     #'taggit_autosuggest',
     # all auth
     'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    #'allauth',
+    #'allauth.account',
+    #'allauth.socialaccount',
+    #'allauth.socialaccount.providers.google',
     #tracker
-    'tracker',
+    #'tracker',
     # wiki
     'django.contrib.humanize',
     #'django_notify',
     #'mptt',
-    'sekizai',
+    #'sekizai',
     'sorl.thumbnail',
     #'wiki',
     #'wiki.plugins.attachments',
@@ -74,6 +74,7 @@ INSTALLED_APPS = (
     'prestashop',
     # extras
     'tinymce',
+    "eproducts",
 )
 
 MIDDLEWARE_CLASSES = (

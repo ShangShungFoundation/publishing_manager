@@ -4,11 +4,7 @@ from django.conf import settings
 from models import Language, Masterpiece, Product, Edition, Book, CD, DVD, eBook, Game, Poster, AudioDownload, VideoDownload, Subject
 
 from contributions.models import ProductContribution
-<<<<<<< HEAD
-
-=======
 from catalogs.models import Item
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 class BookInline(admin.StackedInline):
     model = Book
@@ -22,20 +18,12 @@ class eBookInline(admin.StackedInline):
 
 class CDInline(admin.StackedInline):
     model = CD
-<<<<<<< HEAD
-    max_num = 1
-=======
     #max_num = 1
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 
 class DVDInline(admin.StackedInline):
     model = DVD
-<<<<<<< HEAD
-    max_num = 1
-=======
     #max_num = 1
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 
 class GameInline(admin.StackedInline):
@@ -52,12 +40,6 @@ class VideoDownloadInline(admin.StackedInline):
     model = VideoDownload
     max_num = 1
 
-<<<<<<< HEAD
-class ProductContributionInline(admin.StackedInline):
-    model = ProductContribution
-    extra = 0
-    
-=======
 
 class ProductContributionInline(admin.StackedInline):
     model = ProductContribution
@@ -69,7 +51,6 @@ class CatalogItemInline(admin.StackedInline):
     extra = 1
 
 
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('title', 'ean', 'support_type', 'restriction', 'on_sale', 'flag',)
     list_filter = ( 'support_type', 'languages', 'on_sale', 'restriction', 'subject', ) #'languages__code'
@@ -82,11 +63,7 @@ class ProductAdmin(admin.ModelAdmin):
         return super(ProductAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     inlines = [
-<<<<<<< HEAD
-        BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline, ProductContributionInline
-=======
         BookInline, eBookInline, CDInline, DVDInline, GameInline, AudioDownloadInline, VideoDownloadInline, ProductContributionInline, CatalogItemInline
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
     ]
     
     save_as = True

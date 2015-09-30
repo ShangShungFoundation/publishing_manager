@@ -120,6 +120,8 @@ SUPPORT_TYPES = (
     ("comp", "Composed product"),
 )
 
+ESUPPORT_TYPES = ["ebook", "audiodownload", "videodownload"]
+
 
 class Product(models.Model):
     """
@@ -212,23 +214,6 @@ class Product(models.Model):
     last_edition_year = models.CharField(
         _("last edition year"), max_length=20,
         blank=True,  null=True)
-    
-    subject = models.ForeignKey(Subject)
-    #webshop_cat = models.ForeignKey(PsCategory)
-    
-    quantity = models.IntegerField(
-        _("stock quantity"),
-        blank=True,  null=True)
-    
-    image_name = models.ImageField(_("image name"),
-        upload_to="product_images/",
-        max_length=200,
-        blank=True,  null=True)
-    
-    def __unicode__(self):
-        return "%s - %s" % (self.ean, self.title)
-
-    def save(self, *args, **kwargs):
 
     subject = models.ForeignKey(Subject)
     #webshop_cat = models.ForeignKey(PsCategory)
@@ -253,17 +238,22 @@ class Product(models.Model):
                 self.weight = weight + (weight * 0.15)
         else:
             # update prestashop product data
-            #from catalogs.models import Item
-            #catalog_item = Item.objects.get(product=self, catalog_id=3)
-            #import ipdb; ipdb.set_trace()
-            prepared_data = prepare_data(self)
+            from catalogs.models import Item
             try:
-                ps_product = PsProduct.objects.get(ean13=prepared_data["ean13"])
-            except PsProduct.DoesNotExist:
+                catalog_item = Item.objects.get(product=self, catalog_id=3)
+            except Item.DoesNotExist:
                 pass
             else:
-                del(prepared_data["quantity"])  
-                ps_product = update_product(ps_product, prepared_data)
+                prepared_data = prepare_data(self)
+                try:
+                    ps_product = PsProduct.objects.get(pk=catalog_item.catalog_code)
+                except PsProduct.DoesNotExist:
+                    pass
+                else:
+                    del(prepared_data["quantity"])
+                    #import ipdb; ipdb.set_trace()
+                    ps_product = update_product(ps_product, prepared_data)
+                    
         super(Product, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -334,8 +324,10 @@ class Book(models.Model):
     cover_paper_gramature = models.SmallIntegerField(
         blank=True,  null=True)
     cover_paper_finish = models.SmallIntegerField(
-        choices=PAPER_FINISH,
-    bw_paper_gramature = models.SmallIntegerField(max_length=40,
+        choices=PAPER_FINISH)
+    
+    bw_pages_nr = models.IntegerField(default=0)
+    bw_paper_gramature = models.SmallIntegerField(
         blank=True, null=True)
 
     color_pages_nr = models.IntegerField(default=0)
@@ -406,14 +398,9 @@ class Medicine(models.Model):
     packaging = models.TextField()
 
     def __unicode__(self):
-<<<<<<< HEAD
-        return "DVD %s" % (self.product)
-    
-=======
         return u"Medicine %s" % (self.product)
 
 
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 class Poster(models.Model):
     """
 
@@ -421,17 +408,10 @@ class Poster(models.Model):
     product = models.ForeignKey(Product)
     colors = models.CharField(max_length=40)
     paper_name = models.CharField(max_length=40)
-<<<<<<< HEAD
-    paper_gramature = models.SmallIntegerField(max_length=40)
-
-    def __unicode__(self):
-        return "Poister %s" % (self.product)
-=======
     paper_gramature = models.SmallIntegerField()
 
     def __unicode__(self):
         return u"Poster %s" % (self.product)
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 
 class Game(models.Model):
@@ -442,11 +422,7 @@ class Game(models.Model):
     characteristics = models.TextField()
 
     def __unicode__(self):
-<<<<<<< HEAD
-        return "Game %s" % (self.product)
-=======
         return u"Game %s" % (self.product)
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 EBOOK_FORMAT = (
     (1, "pdf"),
@@ -454,39 +430,25 @@ EBOOK_FORMAT = (
     (3, "kindle"),
 )
 
-<<<<<<< HEAD
-=======
 
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 class eBook(models.Model):
     """
 
     """
     product = models.ForeignKey(Product)
     chapters = models.TextField(blank=True, null=True)
-<<<<<<< HEAD
-    pages_nr = models.IntegerField(default=0)
-    format = models.SmallIntegerField(default=0, choices=EBOOK_FORMAT)
-    file  = models.FileField(upload_to="product_ebooks/",
-           blank=True,  null=True)
-=======
     pages_nr = models.IntegerField()
     format = models.SmallIntegerField(choices=EBOOK_FORMAT)
     file = models.FileField(
         upload_to="product_ebooks/",
         blank=True,  null=True)
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
     size = models.DecimalField(
         max_digits=5, decimal_places=2,
         blank=True, null=True,
         help_text="in Mb")
 
     def __unicode__(self):
-<<<<<<< HEAD
-        return "eBook %s" % (self.product)
-=======
         return u"eBook %s" % (self.product)
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 
 AUDIO_FORMAT = (
@@ -504,23 +466,15 @@ class AudioDownload(models.Model):
         max_digits=5, decimal_places=2,
         help_text="in Mb")
     format = models.SmallIntegerField(choices=AUDIO_FORMAT, default=1)
-<<<<<<< HEAD
-    file  = models.FileField(upload_to="product_mp3/",
-=======
     file = models.FileField(
         upload_to="product_mp3/",
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
         blank=True,  null=True)
     duration = models.SmallIntegerField(
         help_text="in minutes",
         blank=True,  null=True)
 
     def __unicode__(self):
-<<<<<<< HEAD
-        return "Audio Download %s" % (self.product)
-=======
         return u"Audio Download %s" % (self.product)
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
 
 
 VIDEO_FORMAT = (
@@ -538,20 +492,12 @@ class VideoDownload(models.Model):
         max_digits=5, decimal_places=2,
         help_text="in Mb")
     format = models.SmallIntegerField(choices=VIDEO_FORMAT, default=1)
-<<<<<<< HEAD
-    file  = models.FileField(upload_to="product_videos/",
-=======
     file = models.FileField(
         upload_to="product_videos/",
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
         blank=True,  null=True)
     duration = models.SmallIntegerField(
         help_text="in minutes",
         blank=True,  null=True)
 
     def __unicode__(self):
-<<<<<<< HEAD
-        return "Video Download %s" % (self.product)
-=======
         return u"Video Download %s" % (self.product)
->>>>>>> a519447fd270393bc5bb2997dd8805020517c3f6
